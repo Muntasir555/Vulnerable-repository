@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Profile</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav>
+    <span id="sessionText">Logged in</span>
+    <div>
+      <a href="/admin">Admin Page</a>
+      <a href="/api/logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="url-hint">
+    <strong>URL Parameter Test:</strong> 
+    You are currently viewing URL: <code id="currentUrl">/profile?id=...</code><br>
+    Change the ID in your browser address bar: 
+    <a href="/profile?id=emp1">?id=emp1</a> | 
+    <a href="/profile?id=emp2">?id=emp2</a> | 
+    <a href="/profile?id=emp3">?id=emp3</a> | 
+    <a href="/profile?id=admin">?id=admin</a>
+  </div>
+
+  <div id="bacNotice" style="display:none; color: #d32f2f; background: #ffebee; border: 1px solid #ffcdd2; padding: 10px; border-radius: 4px; margin-bottom: 20px;">
+    <strong>Broken Access Control:</strong> You are viewing another employee's profile via the URL parameter!
+  </div>
+
+  <div class="box">
+    <h2 id="empName">Loading...</h2>
+
+    <div class="info-row"><span class="info-label">Employee ID:</span> <span id="empId"></span></div>
+    <div class="info-row"><span class="info-label">Role:</span> <span id="empRole"></span></div>
+    <div class="info-row"><span class="info-label">Department:</span> <span id="empDept"></span></div>
+    <div class="info-row"><span class="info-label">Job Title:</span> <span id="empTitle"></span></div>
+    <div class="info-row"><span class="info-label">Email:</span> <span id="empEmail"></span></div>
+    <div class="info-row"><span class="info-label">Phone:</span> <span id="empPhone"></span></div>
+    <div class="info-row"><span class="info-label">SSN:</span> <span id="empSsn"></span></div>
+    <div class="info-row"><span class="info-label">Salary:</span> <strong id="empSalary" style="color: #c62828;"></strong></div>
+
+    <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+      <span class="info-label">Private Notes:</span>
+      <p id="empNotes" style="margin-top: 5px; background: #fffde7; padding: 8px; border: 1px solid #fff59d;"></p>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id') || 'emp1';
+    document.getElementById('currentUrl').textContent = `/profile?id=${id}`;
+
+    async function load() {
+      // Load current session
+      const sRes = await fetch('/api/current-session');
+      const sData = await sRes.json();
+      if (sData.loggedIn) {
+        document.getElementById('sessionText').textContent = `Logged in as: ${sData.user.name} (${sData.user.id})`;
+      }
+
+      // Load target employee
+      const res = await fetch(`/api/employee?id=${id}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || 'User not found');
+        return;
+      }
+
+      const emp = data.employee;
+      document.getElementById('empName').textContent = emp.name;
+      document.getElementById('empId').textContent = emp.id;
+      document.getElementById('empRole').textContent = emp.role;
+      document.getElementById('empDept').textContent = emp.department;
+      document.getElementById('empTitle').textContent = emp.jobTitle;
+      document.getElementById('empEmail').textContent = emp.email;
+      document.getElementById('empPhone').textContent = emp.phone;
+      document.getElementById('empSsn').textContent = emp.ssn;
+      document.getElementById('empSalary').textContent = emp.salary;
+      document.getElementById('empNotes').textContent = emp.privateNotes;
+
+      if (data.isAccessControlBroken) {
+        document.getElementById('bacNotice').style.display = 'block';
+      }
+    }
+
+    load();
+  </script>
+
+</body>
+</html>

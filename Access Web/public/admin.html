@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav>
+    <span id="sessionText">Admin Dashboard</span>
+    <div>
+      <a href="/profile?id=emp1">Back to Profile</a>
+      <a href="/api/logout">Logout</a>
+    </div>
+  </nav>
+
+  <div id="bacNotice" style="display:none; color: #d32f2f; background: #ffebee; border: 1px solid #ffcdd2; padding: 10px; border-radius: 4px; margin-bottom: 20px;">
+    <strong>Broken Access Control:</strong> You accessed this admin page directly via the URL <code>/admin</code> without having an administrator role!
+  </div>
+
+  <div class="box">
+    <h2>All Employees & Salaries</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Department</th>
+          <th>Salary</th>
+          <th>Profile Link</th>
+        </tr>
+      </thead>
+      <tbody id="empTableBody">
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box">
+    <h3>System Secrets</h3>
+    <div class="info-row"><span class="info-label">Database Host:</span> <span id="dbHost"></span></div>
+    <div class="info-row"><span class="info-label">Server Status:</span> <span id="serverStatus"></span></div>
+    <div class="info-row"><span class="info-label">Master Secret:</span> <code id="adminSecret" style="color: #c62828;"></code></div>
+  </div>
+
+  <script>
+    async function load() {
+      const res = await fetch('/api/admin-data');
+      const data = await res.json();
+
+      document.getElementById('sessionText').textContent = `Logged in as: ${data.viewer} (${data.viewerRole})`;
+      document.getElementById('dbHost').textContent = data.dbHost;
+      document.getElementById('serverStatus').textContent = data.serverStatus;
+      document.getElementById('adminSecret').textContent = data.adminSecret;
+
+      if (data.isAccessControlBroken) {
+        document.getElementById('bacNotice').style.display = 'block';
+      }
+
+      const tbody = document.getElementById('empTableBody');
+      tbody.innerHTML = '';
+      data.allEmployees.forEach(emp => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><code>${emp.id}</code></td>
+          <td>${emp.name}</td>
+          <td>${emp.role}</td>
+          <td>${emp.department}</td>
+          <td style="color: #c62828; font-weight: bold;">${emp.salary}</td>
+          <td><a href="/profile?id=${emp.id}">View</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    load();
+  </script>
+
+</body>
+</html>

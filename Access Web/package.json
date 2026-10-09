@@ -1,0 +1,24 @@
+{
+  "name": "broken-access-control-lab",
+  "version": "1.0.0",
+  "description": "Interactive OWASP Top 10 Broken Access Control Security Playground and Demonstration Lab",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "security",
+    "owasp",
+    "broken-access-control",
+    "idor",
+    "privilege-escalation",
+    "lab"
+  ],
+  "author": "Antigravity Security Lab",
+  "license": "MIT",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2"
+  }
+}
